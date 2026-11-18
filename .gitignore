@@ -1,0 +1,9 @@
+# Local research clones, fetched source pages, and Chrome test profiles
+scratch/research/
+
+# Local dependencies, credentials, and transient output
+node_modules/
+.env
+.env.*
+!.env.example
+*.log

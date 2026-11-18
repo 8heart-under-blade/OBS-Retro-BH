@@ -1,0 +1,12 @@
+<!doctype html><html><body><canvas style="width:1440px;height:810px"></canvas><pre id="result">WAITING</pre><script src="orbits.js"></script><script src="solar-model.js"></script><script src="blackhole-grain.js"></script><script src="celestial-ink.js"></script><script>
+const errors=[];window.onerror=(message)=>errors.push(String(message));
+const scene=new CelestialInk.Scene(document.querySelector('canvas'));
+let attempts=0;
+function verify(){if(Object.keys(scene.maps).length<9&&!scene.assetErrors.length&&attempts++<100){setTimeout(verify,30);return;}
+try{scene.pause();for(const [w,h] of [[1920,1080],[1280,720],[800,1000]]){scene.canvas.style.width=w+'px';scene.canvas.style.height=h+'px';scene.resize();for(const t of [0,25,65,110]){scene.time=t;scene.setScene('starting');}scene.setScene('goodbye');for(const t of [0,15,30,45]){scene.time=t;scene.render();}}scene.setScene('goodbye');for(const t of [0,15,30,45,60]){scene.time=t;scene.render();}
+const p=scene.ctx.getImageData(0,0,scene.canvas.width,scene.canvas.height).data;let bright=0;for(let i=0;i<p.length;i+=4)if(p[i]>40)bright++;
+if(Object.keys(scene.maps).length!==9||scene.assetErrors.length||bright<100||errors.length)throw new Error(JSON.stringify({maps:Object.keys(scene.maps),assetErrors:scene.assetErrors,bright,errors}));
+document.querySelector('#result').textContent='PASS: nine maps loaded; solar and Earth/Moon render; no browser errors; bright pixels='+bright;
+}catch(e){document.querySelector('#result').textContent='FAIL: '+e.message;}finally{scene.destroy();}}
+verify();
+</script></body></html>

@@ -1,0 +1,22 @@
+<!doctype html><html><body><canvas style="width:960px;height:540px"></canvas><pre id="result">WAITING</pre><script src="orbits.js"></script><script src="solar-model.js"></script><script src="blackhole-grain.js"></script><script src="celestial-ink.js"></script><script>
+const errors=[];window.onerror=m=>errors.push(String(m));
+const scene=new CelestialInk.Scene(document.querySelector('canvas'),{scene:'brb'});scene.pause();
+let attempts=0;
+function verify(){
+if(!scene.map&&!scene.traceError&&attempts++<180){setTimeout(verify,30);return;}
+try{
+if(!scene.map||scene.traceError)throw new Error('Worker map unavailable');
+const before=scene.blackHoleSamples.map(p=>[p.x,p.y]);
+for(let frame=0;frame<15;frame++){scene.time+=1/30;scene.render();}
+const moving=scene.blackHoleSamples.filter((p,i)=>Math.hypot(p.x-before[i][0],p.y-before[i][1])>.00001).length;
+const lowerMoving=scene.blackHoleSamples.filter((p,i)=>p.seedY>.66&&Math.hypot(p.x-before[i][0],p.y-before[i][1])>.00001).length;
+if(lowerMoving<10)throw new Error('Lower lensed arc did not animate');
+if(scene.blackHoleSamples.some(p=>p.seedY>.66&&Math.hypot(p.x-p.seedX,p.y-p.seedY)>.015))throw new Error('Lower lensed arc exceeded bounded motion');
+if(moving<scene.blackHoleSamples.length*.1)throw new Error('Insufficient particle movement: '+moving);
+const data=scene.ctx.getImageData(0,0,scene.canvas.width,scene.canvas.height).data;let bright=0;
+for(let i=0;i<data.length;i+=4)if(data[i]>40)bright++;
+if(bright<100||scene.blackHoleSamples.length<100||errors.length)throw new Error(JSON.stringify({bright,errors}));
+document.querySelector('#result').textContent='PASS: original black-hole worker and display-resolution grain render; samples='+scene.blackHoleSamples.length+'; moving='+moving+'; lower arc moving='+lowerMoving+'; bright pixels='+bright;
+}catch(e){document.querySelector('#result').textContent='FAIL: '+e.message;}finally{scene.destroy();}}
+verify();
+</script></body></html>

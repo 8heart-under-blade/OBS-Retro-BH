@@ -1,0 +1,3 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const {frameDelta}=require('./celestial-ink.js');
+test('30 FPS cadence stays even on fractional 60 Hz browser timestamps',()=>{const clock={},frames=[];for(let i=0;i<=120;i++){const now=i*1000/60+Math.sin(i)*.05;if(frameDelta(now,clock,30)!==null)frames.push(now);}assert.equal(frames.length,61);for(let i=1;i<frames.length;i++)assert.ok(Math.abs(frames[i]-frames[i-1]-1000/30)<.2);});
+test('render clock bounds elapsed time after a stall',()=>{const clock={};frameDelta(0,clock,30);assert.equal(frameDelta(5000,clock,30),.1);assert.equal(frameDelta(5010,clock,30),null);assert.ok(frameDelta(5033.34,clock,30)>0);});
