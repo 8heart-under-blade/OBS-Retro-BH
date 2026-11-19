@@ -139,16 +139,6 @@
         if(opacity>.002)this.dot(cx+px,cy+py,opacity,1);
       }
       c.globalAlpha=1;
-      const energy=this.audio.level*.45+this.audio.accent*.55;
-      if(energy>.001){
-        c.fillStyle='#dddcc0';
-        for(let loop=0;loop<3;loop++)for(let i=0;i<110;i++){
-          const u=i/109,a=loop*2.17+.5+(u-.5)*.32,arch=Math.sin(Math.PI*u);
-          const radius=r*(1+.015+arch*(.07+energy*.18));
-          this.dot(cx+Math.cos(a)*radius,cy+Math.sin(a)*radius,energy*.25*arch,1.1);
-        }
-      }
-      c.globalAlpha=1;
     }
     aurora(cx,cy,r,basis){
       const energy=this.audio.swell*.6+this.audio.accent*.4;if(energy<.001)return;
@@ -163,21 +153,20 @@
     }
     saturnRing(planet,front) {
       const c=this.ctx,S=root.CelestialSolar,segments=144,step=Math.PI/segments;
-      const start=front?0:Math.PI,illumination=S.ringIllumination(planet.light);
+      const start=front?0:Math.PI,illumination=S.ringIllumination(planet.light),ringScale=S.ringBreathingScale(this.audio,this.time);
       c.globalAlpha=1;
       for(let band=0;band<12;band++){
         const inner=1.32+band*.06,outer=inner+.06;
         if(inner>=1.74&&inner<1.82)continue; // Cassini-style division.
         const density=.55+.14*Math.sin(band*1.8);
         for(let j=0;j<segments;j++){
-          const a=start+j*step,b=a+step,mid=S.ringPoint((a+b)/2,(inner+outer)/2);
+          const a=start+j*step,b=a+step,mid=S.ringPoint((a+b)/2,(inner+outer)*ringScale/2);
           const wave=.5+.5*Math.sin((a+b)*4-this.time*.8+band*.55);
           const shade=density*illumination*S.ringShadow(mid,planet.light)*(1+this.audio.level*.24+this.audio.accent*.16*wave);
           c.fillStyle='rgb('+Math.round(9+shade*205)+','+Math.round(12+shade*202)+','+Math.round(11+shade*174)+')';
           c.beginPath();
           [S.ringPoint(a,inner),S.ringPoint(b,inner),S.ringPoint(b,outer),S.ringPoint(a,outer)].forEach((p,k)=>{
-            const ripple=1+this.audio.swell*.014*Math.sin((a+b)*3+band*.6-this.time*.5);
-            const x=planet.x+p.x*planet.r*ripple,y=planet.y+p.y*planet.r*ripple;
+            const x=planet.x+p.x*planet.r*ringScale,y=planet.y+p.y*planet.r*ringScale;
             if(k===0)c.moveTo(x,y);else c.lineTo(x,y);
           });
           c.closePath();c.fill();
@@ -189,7 +178,7 @@
         for(let i=0;i<96;i++){
           const angle=(i/96*TAU+this.audioPhase*.12)%TAU;if((Math.sin(angle)>=0)!==front)continue;
           const radius=1.34+((i*.61803398875)%1)*.68;if(radius>1.74&&radius<1.82)continue;
-          const p=S.ringPoint(angle,radius),shade=S.ringShadow(p,planet.light);
+          const p=S.ringPoint(angle,radius*ringScale),shade=S.ringShadow(p,planet.light);
           this.dot(planet.x+p.x*planet.r,planet.y+p.y*planet.r,energy*.25*shade*illumination,1.05);
         }
       }

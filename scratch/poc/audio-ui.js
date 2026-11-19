@@ -5,7 +5,7 @@ function mount(scene,params){
   const meter=new root.CelestialAudio.Meter({source:params.get('source')||'',strength:.65});
   let client=null,demoSource=null;
   $('audio-mode').value=['off','demo'].includes(params.get('audio'))?params.get('audio'):'obs';
-  $('audio-url').value=params.get('obsws')||'ws://127.0.0.1:4445';$('audio-source').value=meter.source;
+  $('audio-url').value=params.get('obsws')||'ws://127.0.0.1:4455';$('audio-source').value=meter.source;
   const status=message=>{$('audio-state').textContent=message;$('audio-open').textContent=message==='LIVE OBS AUDIO'?'AUDIO ●':message==='VISUAL DEMO — NOT LIVE AUDIO'?'AUDIO DEMO':'AUDIO';};
   function apply(){
     if(client){client.destroy();client=null;}demoSource=null;
