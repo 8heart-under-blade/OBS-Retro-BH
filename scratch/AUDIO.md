@@ -8,8 +8,8 @@ node scratch/poc/serve.cjs
 
 ## Connect to your OBS
 
-1. In OBS → Tools → WebSocket Server Settings, enable the server on port **4445** (as in your screenshot).
-2. Refresh the page / OBS Browser Source cache. The pages now try `ws://127.0.0.1:4445` automatically.
+1. In OBS → Tools → WebSocket Server Settings, enable the server on port **4455** to match the demo's configured default.
+2. Refresh the page / OBS Browser Source cache. The pages now try `ws://127.0.0.1:4455` automatically.
 3. Open **AUDIO** in the preview. Select an exact input name (for example `Desktop Audio` or `Music`) from the suggestions, or enter a UUID. Blank selects the **strongest active input**, not a sum or the master/program mix.
 4. Adjust **Reaction intensity**. Defaults are deliberately restrained and smoothed.
 5. In OBS Browser Source → **Interact**, press **A** to open the same settings even with `obs=1` hiding the preview controls.
@@ -26,7 +26,7 @@ Existing scene URLs continue to work; OBS audio is the default:
 - `http://127.0.0.1:8088/?scene=brb&obs=1&audio=obs&source=Music`
 - `http://127.0.0.1:8088/?scene=goodbye&obs=1&audio=obs&source=Music`
 
-Optional `obsws=ws%3A%2F%2F127.0.0.1%3A4445` sets the endpoint. Never put a password in a URL.
+Optional `obsws=ws%3A%2F%2F127.0.0.1%3A4455` sets the endpoint. Never put a password in a URL.
 
 - `audio=off`: disable connection/reactions.
 - `audio=demo`: explicitly labeled **synthetic visual demo**; not live sound.
@@ -35,9 +35,9 @@ Optional `obsws=ws%3A%2F%2F127.0.0.1%3A4445` sets the endpoint. Never put a pass
 
 | Object | Response |
 |---|---|
-| Saturn rings | Smooth brightness waves, very small ring ripple, orbiting reactive dust; planet shadow retained |
+| Saturn rings | Smooth brightness waves and coherent inward/outward breathing (radius bounded to ±1.4%, smaller at default intensity); every band, gap and dust particle scales together, with the planet shadow recalculated at the displaced positions |
 | Jupiter Great Red Spot | Subtle breathing of the oval and sound-driven internal swirl phase |
-| Sun | Grain luminance rises gently; flares/prominence arches brighten on peaks |
+| Sun | Grain luminance rises gently within the photosphere; no geometric flare loops |
 | Sunspots | Small changes to area and contrast, retaining the independent sunspot cycle |
 | Earth oceans | Mapped oceans gain moving wave-like shimmer; continents remain prominent |
 | Black-hole disk | Gentle particle brightness and flow-speed increase; central shadow/ray geometry unchanged |
@@ -65,7 +65,7 @@ node scratch/poc/browser-smoke.cjs brb-smoke.html
 node scratch/poc/browser-smoke.cjs audio-smoke.html
 ```
 
-45 unit tests currently pass. The audio browser smoke uses a loopback **simulated OBS v5 server**, verifies the actual browser WebSocket handshake/subscription, changing meters, input filtering, settings dialog, and visible image changes in all three scenes. It never connects to or controls real OBS. The existing two scene smokes also pass. Live OBS/CEF integration, stream-time performance and perceptual intensity still need review on the streaming machine.
+51 unit tests currently pass, including checks that sound does not generate exterior solar hoops while surface reactivity remains intact. The audio browser smoke uses a loopback **simulated OBS v5 server**, verifies the actual browser WebSocket handshake/subscription, changing meters, input filtering, settings dialog, and visible image changes in all three scenes. It never connects to or controls real OBS. The existing two scene smokes also pass. Live OBS/CEF integration, stream-time performance and perceptual intensity still need review on the streaming machine.
 
 `poc/mock-obs.cjs` is only a test fixture; it is not needed for normal use.
 

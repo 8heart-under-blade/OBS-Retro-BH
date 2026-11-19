@@ -55,6 +55,12 @@ function ringPoint(angle,radius){
   const roll=-.45,q=.38,x=Math.cos(angle)*radius,y=Math.sin(angle)*radius;
   return {x:x*Math.cos(roll)-y*q*Math.sin(roll),y:x*Math.sin(roll)+y*q*Math.cos(roll),z:y*Math.sqrt(1-q*q)};
 }
+function ringBreathingScale(audio,time){
+  const level=Math.max(0,Math.min(1,audio.level||0)),swell=Math.max(0,Math.min(1,audio.swell||0));
+  // A single coherent radius scale preserves every band and gap; smooth meters drive the breath.
+  const drive=.6*(level-swell)+.8*swell*Math.sin(time*.9);
+  return 1+.014*Math.max(-1,Math.min(1,drive));
+}
 function ringShadow(point,light){
   const len=Math.hypot(light.x,light.y,light.z);
   const along=(point.x*light.x+point.y*light.y+point.z*light.z)/len;
@@ -147,5 +153,5 @@ function sunspots(time,seed=173){
   }
   return spots;
 }
-const api={orbitRadii,bodyRadii,layout,sunspots,displayPosition,noise3,photosphere,grainOpacity,jupiterStorm,jupiterAlbedo,ringPoint,ringShadow,ringIllumination,earthAlbedo,earthMoon,earthMoonFrame,earthObliquity,lunarInclination,goodbyeLayout};root.CelestialSolar=api;if(typeof module!=='undefined')module.exports=api;
+const api={orbitRadii,bodyRadii,layout,sunspots,displayPosition,noise3,photosphere,grainOpacity,jupiterStorm,jupiterAlbedo,ringPoint,ringBreathingScale,ringShadow,ringIllumination,earthAlbedo,earthMoon,earthMoonFrame,earthObliquity,lunarInclination,goodbyeLayout};root.CelestialSolar=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

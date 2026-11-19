@@ -37,7 +37,7 @@ async function authentication(password,salt,challenge){
   return hash(await hash(password+salt)+challenge);
 }
 class OBSMeters {
-  constructor({url='ws://127.0.0.1:4445',password='',meter=new Meter(),onStatus=()=>{},onSources=()=>{},WebSocketClass=root.WebSocket}={}){
+  constructor({url='ws://127.0.0.1:4455',password='',meter=new Meter(),onStatus=()=>{},onSources=()=>{},WebSocketClass=root.WebSocket}={}){
     const parsed=new URL(url);if(!['ws:','wss:'].includes(parsed.protocol)||parsed.username||parsed.password)throw new Error('Use a ws:// or wss:// URL without credentials');
     this.url=url;this.password=password;this.meter=meter;this.onStatus=onStatus;this.onSources=onSources;this.WebSocketClass=WebSocketClass;this.stopped=true;this.retry=0;
   }
