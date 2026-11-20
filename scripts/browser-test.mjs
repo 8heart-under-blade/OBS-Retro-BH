@@ -92,7 +92,11 @@ try {
     const clock = document.querySelector('[data-path="scenes.$.clock.enabled"]'); clock.checked = true; clock.dispatchEvent(new Event('input'));
     const date = document.querySelector('[data-path="scenes.$.date.enabled"]'); date.checked = true; date.dispatchEvent(new Event('input'));
     await t.until(() => t.overlay().getElementById('scene-clock').textContent.match(/\d.*:/) && t.overlay().getElementById('scene-date').textContent.length > 5);
-    const zone = document.querySelector('[data-path="time.timeZone"]'); zone.value = 'Moon/Sea'; zone.dispatchEvent(new Event('input')); if (!t.$('save').disabled) throw new Error('Invalid timezone accepted'); zone.value = 'UTC'; zone.dispatchEvent(new Event('input'));
+    const zone = document.querySelector('[data-path="time.timeZone"]'); zone.value = 'Moon/Sea'; zone.dispatchEvent(new Event('input')); if (!t.$('save').disabled) throw new Error('Invalid timezone accepted'); zone.value = 'Philippines Manila'; zone.dispatchEvent(new Event('input'));
+    await t.until(()=>t.overlay().getElementById('scene-clock').textContent===new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',hour12:false,hour:'2-digit',minute:'2-digit'}).format(Date.now()));
+    t.$('save').click();await t.until(()=>t.$('save-state').textContent==='All changes saved');if((await (await fetch('/api/state')).json()).config.time.timeZone!=='Asia/Manila')throw new Error('Manila alias did not save canonically');
+    zone.value='UTC +8';zone.dispatchEvent(new Event('input'));t.$('save').click();await t.until(()=>t.$('save-state').textContent==='All changes saved');if((await (await fetch('/api/state')).json()).config.time.timeZone!=='Etc/GMT-8')throw new Error('UTC+8 alias did not save canonically');
+    zone.value='UTC';zone.dispatchEvent(new Event('input'));
     t.$('tab-layout').click(); const offset = document.querySelector('[data-path="scenes.$.layout.offsetX"]'); offset.value = '-1700'; offset.dispatchEvent(new Event('input'));
     await t.until(() => t.$('layout-warnings').textContent.includes('safe margin')); offset.value = '0'; offset.dispatchEvent(new Event('input'));
     t.$('save').click(); await t.until(() => t.$('save-state').textContent === 'All changes saved');
@@ -118,6 +122,27 @@ try {
     await t.until(() => t.$('audio-status').textContent === 'LIVE OBS AUDIO' && t.$('audio-level').value > .05);
     if (document.querySelectorAll('#audio-inputs option').length < 2) throw new Error('Audio source discovery failed');
     return 'Server-side OBS v5 bridge receives simulated live meters';
+  }));
+  reports.push(await run(async () => {
+    const t = window.__test; t.$('tab-layout').click();
+    const theme = document.querySelector('[data-path="scenes.$.theme"]'), motion = document.querySelector('[data-path="scenes.$.reactToAudio"]');
+    const root = () => t.overlay().getElementById('scene-root');
+    const level = () => Number(root().style.getPropertyValue('--obs-level'));
+    for (const preset of ['transit','ephemeris','contact-sheet']) {
+      theme.value = preset; theme.dispatchEvent(new Event('input'));
+      await t.until(() => root().dataset.theme === preset && !t.overlay().getElementById('scene-mark').hidden);
+    }
+    if (level() !== 0) throw new Error('Audio motion is not opt-in');
+    motion.checked = true; motion.dispatchEvent(new Event('input'));
+    await t.until(() => level() > 0 && parseFloat(getComputedStyle(t.overlay().getElementById('scene-title')).scale) > 1);
+    t.$('preview-motion').click(); await t.until(() => level() === 0);
+    t.$('preview-motion').click(); await t.until(() => level() > 0);
+    t.$('save').click(); await t.until(() => t.$('save-state').textContent === 'All changes saved');
+    const saved = await (await fetch('/api/state')).json();
+    const selected = root().dataset.scene;
+    if (!saved.config.scenes[selected].reactToAudio || saved.config.scenes[selected].theme !== 'contact-sheet') throw new Error('Preset/audio motion did not save');
+    await t.until(() => t.second().getElementById('scene-root').dataset.theme === 'contact-sheet' && Number(t.second().getElementById('scene-root').style.getPropertyValue('--obs-level')) > 0);
+    return 'All three new presets render; OBS meter drives opt-in title motion, and preview pause stops it';
   }));
   const priorClient = app.bridge.client;
   const afterAudio = app.store.snapshot(); afterAudio.config.scenes.goodbye.title.text = 'Until the next orbit.'; await app.store.update(afterAudio.config, afterAudio.revision);

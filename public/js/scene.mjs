@@ -9,7 +9,13 @@ fit(); addEventListener('resize', fit);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const scene = new CelestialInk.Scene(document.querySelector('#artwork'), {scene: name, motion: !reduced.matches});
 const audio = new RemoteAudio(); scene.setAudioSource(audio);
-let saved = null, draft = null, offset = 0, overlayReady = false;
+let saved = null, draft = null, offset = 0, overlayReady = false, previewMotion = true;
+function sendOverlayAudio(value = null) {
+  if (!overlayReady) return;
+  const config = draft || saved?.config;
+  const active = config?.audio.enabled && config.scenes[name].reactToAudio && scene.options.motion;
+  overlay.contentWindow.postMessage({type: 'render-audio', value: active ? value : null}, location.origin);
+}
 function post() {
   if (!saved || !overlayReady) return;
   const timers = {...saved.timers};
@@ -18,7 +24,11 @@ function post() {
 }
 const connection = liveConnection({
   onState(state) { saved = state; offset = state.serverNow - Date.now(); post(); },
-  onAudio(value) { audio.ingest(draft?.audio.enabled === false ? {level: 0, swell: 0, accent: 0} : value); }
+  onAudio(value) {
+    audio.ingest(draft?.audio.enabled === false ? {level: 0, swell: 0, accent: 0} : value);
+    if ((draft || saved?.config)?.scenes[name].reactToAudio) sendOverlayAudio(value);
+  },
+  onStatus(status) { if (status !== 'online') sendOverlayAudio(); }
 });
 overlay.addEventListener('load', () => { overlayReady = true; post(); });
 const message = event => {
@@ -28,11 +38,12 @@ const message = event => {
   } else if (event.source === parent && event.data?.type === 'preview-config') {
     try { draft = event.data.config ? validateConfig(event.data.config) : null; post(); } catch {}
   } else if (event.source === parent && event.data?.type === 'preview-motion') {
-    scene.options.motion = !!event.data.enabled && !reduced.matches;
+    previewMotion = !!event.data.enabled;
+    motion();
   }
 };
 addEventListener('message', message);
 if (overlay.contentDocument?.readyState === 'complete') { overlayReady = true; post(); }
-const motion = () => { scene.options.motion = !reduced.matches; }; reduced.addEventListener('change', motion);
+const motion = () => { scene.options.motion = previewMotion && !reduced.matches; if (!scene.options.motion) sendOverlayAudio(); }; reduced.addEventListener('change', motion);
 const health = setInterval(() => { if(parent !== window){const errors=[...scene.assetErrors.map(name=>'Map unavailable: '+name),...(scene.traceError?['Black-hole worker unavailable']:[])];parent.postMessage({type:'render-health',scene:name,errors},location.origin);}},1000);
 addEventListener('pagehide', () => { clearInterval(health); connection.close(); scene.destroy(); removeEventListener('resize', fit); removeEventListener('message', message); reduced.removeEventListener('change', motion); }, {once: true});

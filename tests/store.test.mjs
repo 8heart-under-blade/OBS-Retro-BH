@@ -20,6 +20,7 @@ test('visual saves preserve active timers; timing changes reset only the affecte
   state = await store.update(state.config, state.revision); assert.equal(state.timers.starting.deadline, 301000);
   state.config.scenes.starting.timer.durationSeconds = 600; state = await store.update(state.config, state.revision); assert.equal(state.timers.starting.status, 'idle'); assert.equal(state.timers.starting.remainingSeconds, 600);
 });
+test('friendly time zones persist as canonical identifiers',async t=>{const {dir,store}=await fixture(t),s=store.snapshot();s.config.time.timeZone='Philippines Manila';const saved=await store.update(s.config,s.revision);assert.equal(saved.config.time.timeZone,'Asia/Manila');const loaded=await new ConfigStore(path.join(dir,'state.json')).init();assert.equal(loaded.snapshot().config.time.timeZone,'Asia/Manila');});
 test('corrupted state fails safely without replacing the file', async t => {
   const {dir} = await fixture(t), filename = path.join(dir, 'state.json'); await writeFile(filename, '{broken');
   await assert.rejects(new ConfigStore(filename).init(), /not overwritten/); assert.equal(await readFile(filename, 'utf8'), '{broken');
