@@ -32,11 +32,11 @@ The original POC remains in `scratch/poc/`, independently runnable on port 8088.
 4. **Load defaults** in the left sidebar restores all scenes and shared settings (including custom CSS and audio) in the preview after confirmation. It does not change live OBS until you Save. The Layout tab also has a per-scene reset.
 5. **Save to OBS** broadcasts the saved configuration to all open outputs without replacing their artwork canvas or reconnecting OBS audio.
 
-Typography defaults to **Meridian / Jost**, with **Plate / Spectral** as an editorial alternative. Both fonts and their SIL OFL licenses are bundled locally. Layout presets, size, width, offsets and text colors are configurable. Long text wraps; warnings do not automatically hide or shrink content.
+Typography defaults to **Meridian / Jost**, with **Plate / Spectral** as an editorial alternative. Transit adds a thin orbital mark, Ephemeris a serif title with a measuring rule, and Contact Sheet bold type with film marks. **Layout → React to OBS audio** lets a scene's title and design marks respond to the selected OBS input. It's off by default and respects reduced motion and preview pause. Both fonts and their SIL OFL licenses are bundled locally. Layout presets, size, width, offsets and text colors are configurable. Long text wraps; warnings do not automatically hide or shrink content.
 
 The timer buttons use **saved settings**. Start/restart, pause, resume and reset are shared across outputs. Absolute deadlines persist across page refreshes and server restarts. Editing visual styles preserves active timers; changing a timer's duration/mode resets that timer on Save. Countdown completion changes its displayed message; it does not switch OBS scenes.
 
-Clock/date support configurable IANA time zones and locales. Next-stream/announcement/social fields are text, not an automatic scheduling service.
+Clock/date support configurable IANA time zones and locales. For the Philippines use **Asia/Manila**. Friendly entries such as **Manila**, **Philippines Manila**, and **UTC+8** are also accepted and saved as standard identifiers. Whole-hour UTC/GMT offsets are supported; use an IANA zone for fractional offsets. Next-stream/announcement/social fields are text, not an automatic scheduling service.
 
 ## Custom CSS / AI styling
 
@@ -65,7 +65,7 @@ This is a local desktop tool—not an internet-hosted multi-user service. `PORT`
 ## Tests
 
 ```sh
-npm test             # 24 production unit/integration tests
+npm test             # 28 production unit/integration tests
 npm run test:poc     # 51 accepted POC regressions
 npm run test:browser # real headless Chrome end-to-end checks
 ```

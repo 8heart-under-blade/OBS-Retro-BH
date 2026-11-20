@@ -1,4 +1,4 @@
-import {SCENES, defaultConfig, validateConfig} from './config-schema.mjs';
+import {SCENES, defaultConfig, validateConfig, normalizeTimeZone} from './config-schema.mjs';
 import {timerReading, formatDuration} from './timers.mjs';
 import {liveConnection, LocalAPI} from './live.mjs';
 const $ = id => document.getElementById(id), api = new LocalAPI(), preview = $('scene-preview');
@@ -61,6 +61,7 @@ function choose(name) {
 }
 async function save() {
   if (!draft || !dirty || saving || conflict || !check()) return;
+  draft=validateConfig(draft);hydrate();
   saving = true; sent = serialize(draft); status();
   try {
     const response = await api.request('/api/config', {revision: baseRevision, config: JSON.parse(sent)}, 'PUT');
@@ -74,6 +75,11 @@ async function save() {
 for (const el of document.querySelectorAll('[data-path]')) el.addEventListener('input', () => {
   if (!draft) return;
   set(el.dataset.path, el.type === 'checkbox' ? el.checked : ['number', 'range'].includes(el.type) ? el.valueAsNumber : el.value); edited();
+});
+document.querySelector('[data-path="time.timeZone"]').addEventListener('change',event=>{
+  if(!draft)return;
+  try{const zone=normalizeTimeZone(event.target.value);event.target.value=zone;draft.time.timeZone=zone;edited();}
+  catch(error){message(error.message);}
 });
 for (const button of document.querySelectorAll('[data-scene]')) button.onclick = () => choose(button.dataset.scene);
 for (const button of document.querySelectorAll('[data-tab]')) button.onclick = () => {

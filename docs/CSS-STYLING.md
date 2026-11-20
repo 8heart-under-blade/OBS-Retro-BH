@@ -23,6 +23,10 @@ Your logical design canvas is **1920×1080** regardless of preview size. Keep ke
 
 Basic visibility controls set the `hidden` attribute. Enable a module in Content before styling it. Empty/disabled content is not invented automatically by CSS.
 
+## Audio-driven styling
+
+Enable **Layout → React to OBS audio** on the scene. `.scene-root[data-audio-motion="true"]` receives `--obs-level`, `--obs-swell`, and `--obs-accent` (0–1, falling back to zero on silence/disconnect). These are smoothed OBS input levels, not frequency bands. Use a short transition and `@media (prefers-reduced-motion: no-preference)` for custom motion rules. Transit, Ephemeris and Contact Sheet expose the decorative `#scene-mark::before` for custom animation.
+
 ## Variables
 
 Set these on `:root` in your stylesheet to override the basic-control defaults:
