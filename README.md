@@ -2,6 +2,14 @@
 
 A local-first OBS scene studio: warm monochrome ink stippling, celestial motion, live-configurable typography, timers and restrained sound reactions.
 
+## Scene demos
+
+Looping recordings of the OBS Browser Source outputs with their default artwork and titles. The GIFs are silent.
+
+| Starting · Solar system | BRB · Black hole | Goodbye · Earth and Moon |
+| --- | --- | --- |
+| ![Solar-system planets orbiting a stippled Sun above the Starting soon title](docs/demo/starting.gif) | ![Ink-stipple particles circulating around a black hole above the Be right back title](docs/demo/brb.gif) | ![The Moon orbiting a stippled Earth above the Until next orbit title](docs/demo/goodbye.gif) |
+
 ## Portable candidates
 
 Unsigned Windows x64, macOS Intel/Apple Silicon and glibc Linux x64/ARM64 candidates bundle Node and keep settings outside the archive. See [portable quick start](docs/PORTABLE.md) and the [release gates](docs/RELEASE-CHECKLIST.md). These are candidates, not claims of real OBS support on every target.
