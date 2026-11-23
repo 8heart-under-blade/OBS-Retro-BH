@@ -1,0 +1,4 @@
+# Preserve executable launcher line endings in release checkouts.
+packaging/linux/start.sh text eol=lf
+packaging/macos/Start.command text eol=lf
+packaging/windows/Start.cmd text eol=crlf

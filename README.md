@@ -2,6 +2,12 @@
 
 A local-first OBS scene studio: warm monochrome ink stippling, celestial motion, live-configurable typography, timers and restrained sound reactions.
 
+## Portable candidates
+
+Unsigned Windows x64, macOS Intel/Apple Silicon and glibc Linux x64/ARM64 candidates bundle Node and keep settings outside the archive. See [portable quick start](docs/PORTABLE.md) and the [release gates](docs/RELEASE-CHECKLIST.md). These are candidates, not claims of real OBS support on every target.
+
+Build on the matching OS/architecture with current Node and a ZIP-capable `tar` (Windows includes `tar.exe`): `node scripts/build-portable.mjs --target windows-x64` (replace the target for other platforms). Outputs and SHA-256 checksums are in `dist/`. Verify your own built archive with `node scripts/build-portable.mjs --verify <archive> --target <target>`; verification runs the bundled executable. The `prod` workflow builds and verifies Windows x64 and Linux x64. An explicit version tag on `prod` prepares a draft GitHub Release. See the [production release runbook](docs/PRODUCTION-RELEASE.md).
+
 ## Run
 
 Node.js **22 or newer**. No dependencies or build step:
@@ -83,4 +89,4 @@ Real OBS/CEF, encoding-time performance, perceptual audio intensity and longer s
 - `tests/`, `scripts/`: production tests and browser runner.
 - `scratch/`: retained POC and its documentation; research/browser caches excluded.
 
-See [design decision](docs/DESIGN.md), [production notes](docs/PRODUCTION.md), and [renderer provenance](public/celestial/NOTICE.md). Maps and fonts have their own attribution/license files. Work is on `development`; no `main` commit/push has been made.
+See [design decision](docs/DESIGN.md), [production notes](docs/PRODUCTION.md), and [renderer provenance](public/celestial/NOTICE.md). Project code is licensed under the [MIT License](LICENSE). The bundled Node runtime, maps and fonts retain their own licenses and notices. Work is on `development`; no `main` commit/push has been made.

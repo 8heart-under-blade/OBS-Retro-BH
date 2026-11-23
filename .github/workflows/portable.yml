@@ -1,0 +1,65 @@
+name: Portable candidates
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Target to build and smoke-test (or all)
+        required: true
+        default: all
+        type: choice
+        options: [all, windows-x64, macos-x64, macos-arm64, linux-x64, linux-arm64]
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - id: targets
+        env:
+          TARGET: ${{ inputs.target }}
+        run: |
+          jobs='[{"target":"windows-x64","os":"windows-2025","ext":"zip"},{"target":"linux-x64","os":"ubuntu-24.04","ext":"tar.gz"},{"target":"linux-arm64","os":"ubuntu-24.04-arm","ext":"tar.gz"},{"target":"macos-x64","os":"macos-15-intel","ext":"tar.gz"},{"target":"macos-arm64","os":"macos-15","ext":"tar.gz"}]'
+          echo "matrix=$(jq -c --arg target "$TARGET" '{include: map(select($target == "all" or .target == $target))}' <<< "$jobs")" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    name: Candidate (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.x'
+      - name: Source regression tests
+        run: npm test
+      - name: POC regression tests
+        run: npm run test:poc
+      - name: Build and smoke-test extracted candidate (not real OBS)
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          EXT: ${{ matrix.ext }}
+        run: |
+          set -euo pipefail
+          node scripts/build-portable.mjs --target "$TARGET"
+          version=$(node -p "require('./package.json').version")
+          archive="dist/obs-retro-bh-$version-$TARGET.$EXT"
+          node scripts/build-portable.mjs --verify "$archive" --target "$TARGET"
+      - name: Upload unsigned candidate (no release publication)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: obs-retro-bh-portable-${{ matrix.target }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
