@@ -6,6 +6,6 @@ The black-hole physics and worker originate from the owner's project:
 https://github.com/8heart-under-blade/Retro-BH
 Inspected upstream commit: ad884f24cde3fb2051e71916133a738efb5bca13.
 
-The remaining custom library/application work was developed in this repository. No OBS plugin source is copied into the WebSocket client; it implements the documented read-only meter protocol.
+The reused owner-authored Retro-BH code and the custom library/application code in this distribution are covered by the project's MIT license. The remaining custom library/application work was developed in this repository. No OBS plugin source is copied into the WebSocket client; it implements the documented read-only meter protocol.
 
 Surface maps have their own CC BY 4.0 attribution in `assets/ATTRIBUTION.md`. Fonts are under their respective SIL OFL licenses in `public/fonts/`. No additional software license is assigned by this notice.

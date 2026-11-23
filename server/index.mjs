@@ -27,9 +27,9 @@ async function readJson(request) {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
   catch { const error = new Error('Malformed JSON'); error.status = 400; throw error; }
 }
-export async function createApp({stateFile = path.join(projectRoot, '.local/state.json'), publicDir = path.join(projectRoot, 'public'), heartbeatMs = 15000, enableAudio = true} = {}) {
+export async function createApp({stateFile = path.join(projectRoot, '.local/state.json'), publicDir = path.join(projectRoot, 'public'), heartbeatMs = 15000, enableAudio = true, initialAudioEnabled = true} = {}) {
   const publicRoot = await realpath(publicDir);
-  const store = await new ConfigStore(stateFile).init(), token = randomBytes(32).toString('hex'), streams = new Set();
+  const store = await new ConfigStore(stateFile).init({initialAudioEnabled}), token = randomBytes(32).toString('hex'), streams = new Set();
   const bridge = new AudioBridge({enabled: enableAudio});
   const broadcast = (event, data) => {
     const message = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';

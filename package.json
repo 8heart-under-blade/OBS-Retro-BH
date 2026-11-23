@@ -2,6 +2,7 @@
   "name": "obs-retro-bh",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Local-first, configurable ink-stipple celestial scenes for OBS",
   "engines": {
     "node": ">=22"

@@ -4,6 +4,9 @@ scratch/research/
 # Private application configuration and runtime state
 .local/
 
+# Generated portable bundles
+/dist/
+
 # Local dependencies, credentials, and transient output
 node_modules/
 .env

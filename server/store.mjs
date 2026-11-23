@@ -22,11 +22,11 @@ function validateState(state) {
 }
 export class ConfigStore extends EventEmitter {
   constructor(filename) { super(); this.filename = filename; this.pending = Promise.resolve(); this.serial = 0; }
-  async init() {
+  async init({initialAudioEnabled = true} = {}) {
     try { this.state = validateState(JSON.parse(await readFile(this.filename, 'utf8'))); }
     catch (error) {
       if (error.code !== 'ENOENT') throw new Error('Cannot load local state; existing file was not overwritten: ' + error.message);
-      const config = defaultConfig(); this.state = {revision: 0, config, timers: timersFor(config)}; await this.persist(this.state);
+      const config = defaultConfig(); config.audio.enabled = initialAudioEnabled; this.state = {revision: 0, config, timers: timersFor(config)}; await this.persist(this.state);
     }
     return this;
   }
