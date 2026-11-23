@@ -14,11 +14,11 @@ Looping recordings of the OBS Browser Source outputs with their default artwork 
 
 Unsigned Windows x64, macOS Intel/Apple Silicon and glibc Linux x64/ARM64 candidates bundle Node and keep settings outside the archive. See [portable quick start](docs/PORTABLE.md) and the [release gates](docs/RELEASE-CHECKLIST.md). These are candidates, not claims of real OBS support on every target.
 
-Build on the matching OS/architecture with current Node and a ZIP-capable `tar` (Windows includes `tar.exe`): `node scripts/build-portable.mjs --target windows-x64` (replace the target for other platforms). Outputs and SHA-256 checksums are in `dist/`. Verify your own built archive with `node scripts/build-portable.mjs --verify <archive> --target <target>`; verification runs the bundled executable. The `prod` workflow builds and verifies Windows x64 and Linux x64. An explicit version tag on `prod` prepares a draft GitHub Release. See the [production release runbook](docs/PRODUCTION-RELEASE.md).
+Build on the matching OS/architecture with current Node and a ZIP-capable `tar` (Windows includes `tar.exe`): `node scripts/build-portable.mjs --target windows-x64` (replace the target for other platforms). Outputs and SHA-256 checksums are in `dist/`. Verify your own built archive with `node scripts/build-portable.mjs --verify <archive> --target <target>`; verification runs the bundled executable. The `prod` workflow builds and verifies Windows x64 and Linux x64. A `v<version>` tag matching `package.json` and pointing to the current `prod` tip triggers the draft GitHub Release workflow. See the [production release runbook](docs/PRODUCTION-RELEASE.md).
 
-## Run
+## Run from source
 
-Node.js **22 or newer**. No dependencies or build step:
+From the repository root, use Node.js **22 or newer**. No dependency install or build step is required:
 
 ```sh
 npm start
@@ -44,7 +44,7 @@ The original POC remains in `scratch/poc/`, independently runnable on port 8088.
 2. Edit title/subtitle, countdown or elapsed break timer, clock/date, announcements, social text or a next-stream message. Everything is individually optional.
 3. Draft changes appear **only in the preview**.
 4. **Load defaults** in the left sidebar restores all scenes and shared settings (including custom CSS and audio) in the preview after confirmation. It does not change live OBS until you Save. The Layout tab also has a per-scene reset.
-5. **Save to OBS** broadcasts the saved configuration to all open outputs without replacing their artwork canvas or reconnecting OBS audio.
+5. **Save to OBS** broadcasts the saved configuration to all open outputs without replacing their artwork canvas. Text, layout, timer and CSS changes leave the OBS audio connection in place. Changing the audio endpoint or turning OBS audio on or off can reopen or close that connection.
 
 Typography defaults to **Meridian / Jost**, with **Plate / Spectral** as an editorial alternative. Transit adds a thin orbital mark, Ephemeris a serif title with a measuring rule, and Contact Sheet bold type with film marks. **Layout → React to OBS audio** lets a scene's title and design marks respond to the selected OBS input. It's off by default and respects reduced motion and preview pause. Both fonts and their SIL OFL licenses are bundled locally. Layout presets, size, width, offsets and text colors are configurable. Long text wraps; warnings do not automatically hide or shrink content.
 
@@ -68,7 +68,7 @@ Sound responses use smoothed input loudness/peaks, **not FFT/frequency bands or 
 
 ## Persistence & security
 
-- Private state/timers: `.local/state.json` (Git-ignored). Back it up before deleting it.
+- Saved settings and timers: `.local/state.json` (Git-ignored) for a source checkout. Portable builds use a separate [user data directory](docs/PORTABLE.md#where-your-data-lives). Back up `state.json` before deleting it.
 - Concurrent edits are revision-checked, not silently overwritten.
 - Save/auth/timer actions require an ephemeral local write token; Host/Origin checks, request limits and a local-resource CSP apply.
 - Public files are restricted by resolved filesystem path. No credentials in the public configuration schema.
@@ -79,8 +79,8 @@ This is a local desktop tool—not an internet-hosted multi-user service. `PORT`
 ## Tests
 
 ```sh
-npm test             # 28 production unit/integration tests
-npm run test:poc     # 51 accepted POC regressions
+npm test             # production unit and integration tests
+npm run test:poc     # retained POC regression suite
 npm run test:browser # real headless Chrome end-to-end checks
 ```
 
@@ -97,4 +97,12 @@ Real OBS/CEF, encoding-time performance, perceptual audio intensity and longer s
 - `tests/`, `scripts/`: production tests and browser runner.
 - `scratch/`: retained POC and its documentation; research/browser caches excluded.
 
-See [design decision](docs/DESIGN.md), [production notes](docs/PRODUCTION.md), and [renderer provenance](public/celestial/NOTICE.md). Project code is licensed under the [MIT License](LICENSE). The bundled Node runtime, maps and fonts retain their own licenses and notices. Work is on `development`; no `main` commit/push has been made.
+See [design decision](docs/DESIGN.md), [production notes](docs/PRODUCTION.md), and [renderer provenance](public/celestial/NOTICE.md).
+
+## Development provenance
+
+According to the project maintainer, OBS Retro-BH was created using **T3 Code** with the **Pi** provider and the **GPT 6.2 Sol** model. The maintainer also credits T3 Code orchestration for council reviews with free **OpenCode** models. See the [design decision record](docs/DESIGN.md) for the original design consultation.
+
+## License
+
+Project code is licensed under the [MIT License](LICENSE). The bundled Node runtime, maps and fonts retain their own licenses and notices.
